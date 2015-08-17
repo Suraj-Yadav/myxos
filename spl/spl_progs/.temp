@@ -1,0 +1,7 @@
+START
+MOV T0,  "timer Running"
+OUT T0
+MOV T0,  "UserTurn"
+OUT T0
+IRET
+HALT
