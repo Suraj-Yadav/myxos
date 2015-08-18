@@ -25,7 +25,7 @@ load(12,6);
 load (9, 3);
 load (10, 4);
 [READY_LIST + 32] = 1;
-load(29,25);
+load(29,27);
 alias PTBR_Process1 S0;
 PTBR_Process1 = 1024 + 1 * 8; 
 [PTBR_Process1 + 0] = 29; // Physical Page Number for Logical Page 0
@@ -43,4 +43,5 @@ PTBR_Process1 = 1024 + 1 * 8;
 [READY_LIST + 35] = 3 * 512; // Sets the entry for SP in the PCB
 [READY_LIST + 36] = 0; // Sets the entry for IP to logical address 0 in the PCB 
 print "OS-Over";
+breakpoint;
 ireturn;
