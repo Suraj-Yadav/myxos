@@ -451,7 +451,7 @@ int loadExecutableToDisk(char *name)
 		freeBlock[i]=-1;
 	char c='\0',*s;
 	char filename[50];
-	s = strrchr(name,'/');
+	s = strrchr(name,'\\');
 	if(s!=NULL)
 		strcpy(filename,s+1);
 	else
@@ -553,7 +553,7 @@ int loadDataToDisk(char *name)
 		freeBlock[i]=-1;
 	char c='\0',*s;
 	char filename[50],buf[16];
-	s = strrchr(name,'/');
+	s = strrchr(name,'\\');
 	if(s!=NULL)
 		strcpy(filename,s+1);
 	else
