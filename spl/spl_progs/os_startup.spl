@@ -46,7 +46,7 @@ endwhile;
 	[READY_LIST + 0] = 0; 	// Sets the entry for PID as 0 
 	[READY_LIST + 1] = 2; 	// Sets the entry for STATE as Running 
 	
-	// Setting the Per Process File Table as Invalid
+	// Setting the Per Process File Table Entries as Invalid
 	[READY_LIST + 15 + 0] = -1;
 	[READY_LIST + 15 + 2] = -1;
 	[READY_LIST + 15 + 4] = -1;
