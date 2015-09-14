@@ -3,28 +3,28 @@ print "OS Started";
 load(7,1);
 load(8,2);
 
-//Load Timer Code into Memeory
+//Load Timer Code into Memory
 load (9, 3);load (10, 4);
 
-//Load Interrupt 1 Code into Memeory
+//Load Interrupt 1 Code into Memory
 load(11,5);load(12,6);
 
-//Load Interrupt 2 Code into Memeory
-// load(13,7);load(14,8);
+//Load Interrupt 2 Code into Memory
+load(13,7);load(14,8);
 
-//Load Interrupt 3 Code into Memeory
-// load(15,9);load(16,10);
+//Load Interrupt 3 Code into Memory
+load(15,9);load(16,10);
 
-//Load Interrupt 4 Code into Memeory
-// load(17,11);load(18,12);
+//Load Interrupt 4 Code into Memory
+load(17,11);load(18,12);
 
-//Load Interrupt 5 Code into Memeory
+//Load Interrupt 5 Code into Memory
 // load(19,13);load(20,14);
 
-//Load Interrupt 6 Code into Memeory
+//Load Interrupt 6 Code into Memory
 // load(21,15);load(22,16);
 
-//Load Interrupt 7 Code into Memeory
+//Load Interrupt 7 Code into Memory
 load(23,17);load(24,18);
 
 // Load the FAT
@@ -33,9 +33,28 @@ load(5,19);
 // Load the Disk Free List
 load(6,20);
 
+// Initialize the System Wide Open File Table
+alias counter S0;			
+counter = 0;
+while ( counter <  128) do			// 64 entries, each of size 2 words
+	[ FILE_TABLE + counter + 0] = -1;	// Set FAT Index to -1
+	[ FILE_TABLE + counter + 1] =  0;	// Set File Open Count to 0
+	counter = counter + 2;			// Move to next entry
+endwhile;	
+
 // Load The INIT Process into memory
 	[READY_LIST + 0] = 0; 	// Sets the entry for PID as 0 
 	[READY_LIST + 1] = 2; 	// Sets the entry for STATE as Running 
+	
+	// Setting the Per Process File Table as Invalid
+	[READY_LIST + 15 + 0] = -1;
+	[READY_LIST + 15 + 2] = -1;
+	[READY_LIST + 15 + 4] = -1;
+	[READY_LIST + 15 + 6] = -1;
+	[READY_LIST + 15 + 8] = -1;
+	[READY_LIST + 15 + 10] = -1;
+	[READY_LIST + 15 + 12] = -1;
+	[READY_LIST + 15 + 14] = -1;
 
 	load(25,21); 			// 
 	load(26,22); 			// Load pages of code from disk to memory
@@ -119,5 +138,5 @@ load(6,20);
 // Setting 2nd User process Over
 
 print "OS-Over";
-breakpoint;
+//breakpoint;
 ireturn;
