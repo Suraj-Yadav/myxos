@@ -64,6 +64,7 @@ if (sysCallNo == 1) then
 	[freeFatLoc + 0] = filename;
 	[freeFatLoc + 1] = 0;
 	[freeFatLoc + 2] = freeBlock;
+	
 	//Writing the -1 in the Basic Block
 	load(1, freeBlock);
 	alias i S5;

@@ -1,142 +1,73 @@
-print "OS Started";
-//Load Exception code into Memory
-load(7,1);
-load(8,2);
+load (7, 1);
+load (8, 2);
+load (23, 17);
+load (24, 18);
+[READY_LIST + 0] = 0;
+load(25,21);
+load(26,22);
+load(27,23);
+PTBR = 1024;
+PTLR = 4;
+[PTBR + 0] = 25;
+[PTBR + 1] = "01";
+[PTBR + 2] = 26;
+[PTBR + 3] = "01";
+[PTBR + 4] = 27;
+[PTBR + 5] = "01";
+[PTBR + 6] = 28;
+[PTBR + 7] = "01";
+[READY_LIST + 1] = 2;
+SP = 3 * 512;
+[28 * 512] = 0;
+load (11, 5);
+load (12, 6);
+load (9, 3);
+load (10, 4);
 
-//Load Timer Code into Memory
-load (9, 3);load (10, 4);
+//For Create system call
 
-//Load Interrupt 1 Code into Memory
-load(11,5);load(12,6);
+load (5, 19);	//FAT
+load (6, 20);	//Disk free list
 
-//Load Interrupt 2 Code into Memory
-load(13,7);load(14,8);
 
-//Load Interrupt 3 Code into Memory
-load(15,9);load(16,10);
+//For all other file system calls
 
-//Load Interrupt 4 Code into Memory
-load(17,11);load(18,12);
+//Setting all entries of the System-Wide Open File Table to invalid
 
-//Load Interrupt 5 Code into Memory
-// load(19,13);load(20,14);
+alias counter S0;
 
-//Load Interrupt 6 Code into Memory
-// load(21,15);load(22,16);
-
-//Load Interrupt 7 Code into Memory
-load(23,17);load(24,18);
-
-// Load the FAT
-load(5,19);
-
-// Load the Disk Free List
-load(6,20);
-
-// Initialize the System Wide Open File Table
-alias counter S0;			
 counter = 0;
-while ( counter <  128) do			// 64 entries, each of size 2 words
-	[ FILE_TABLE + counter + 0] = -1;	// Set FAT Index to -1
-	[ FILE_TABLE + counter + 1] =  0;	// Set File Open Count to 0
-	counter = counter + 2;			// Move to next entry
-endwhile;	
 
-// Load The INIT Process into memory
-	[READY_LIST + 0] = 0; 	// Sets the entry for PID as 0 
-	[READY_LIST + 1] = 2; 	// Sets the entry for STATE as Running 
-	
-	// Setting the Per Process File Table Entries as Invalid
-	[READY_LIST + 15 + 0] = -1;
-	[READY_LIST + 15 + 2] = -1;
-	[READY_LIST + 15 + 4] = -1;
-	[READY_LIST + 15 + 6] = -1;
-	[READY_LIST + 15 + 8] = -1;
-	[READY_LIST + 15 + 10] = -1;
-	[READY_LIST + 15 + 12] = -1;
-	[READY_LIST + 15 + 14] = -1;
+while (counter < 128) do
+	[FILE_TABLE + counter + 0] = -1;
+	[FILE_TABLE + counter + 1] = 0;
+	counter = counter + 2;
+endwhile;
 
-	load(25,21); 			// 
-	load(26,22); 			// Load pages of code from disk to memory
-	load(27,23); 			// 
+//Setting all entries of Per Process Open File Table of INIT to invalid
 
-	PTBR = PAGE_TABLE; 			// Set the Address of Page Table
-	PTLR = 4; 				// Set the length of Page Table
+alias counter2 S0;
 
-	[PTBR + 0] = 25; 		// 
-	[PTBR + 1] = "01"; 		// 
-	[PTBR + 2] = 26; 		// Setting the Physical Pages 
-	[PTBR + 3] = "01"; 		// for the Logical Pages
-	[PTBR + 4] = 27; 		// Also Adding the aux info
-	[PTBR + 5] = "01"; 		// 
-	[PTBR + 6] = 28; 		// Setting the page for stack
-	[PTBR + 7] = "01"; 		// Auxiliary Information for Logical Page 3 (Stack)
+counter2 = 0;
 
-	SP = 3 * 512; 			// Set the start of the Stack
-	[28 * 512] = 0; 		// Set up the IP value for INIT as the top of stack 
-							// so when INIT process is started by system IP is set as 0
-// Loading INIT Process Complete
+while (counter2 < 16) do
+	[1536 + 15 + counter2 + 0] = -1;
+	[1536 + 15 + counter2 + 1] = -1;
+	counter2 = counter2 + 2;
+endwhile;
 
-// Structure of PCB
-//	0	|	1	|	2	|	3	|	4	|	5	|	6	|	7-14	|	15-30	|
-//------+-------+-------+-------+-------+-------+-------+-----------+-----------+
-// PID	| STATE	|	BP	|	SP	|	IP	| PTBR	| PTLR	|  R0 - R7	| File Tbl.	|
-//------+-------+-------+-------+-------+-------+-------+-----------+-----------+
+//Load other interrupts
 
-// Setting the PCB and Page Table for the 1st User Process
-	// load(29,27);				// Loading from Disk
-	// alias PID_Process1 S0;
-	// PID_Process1 = 1;
-	// alias PTBR_Process1 S1;
-	// PTBR_Process1 = PAGE_TABLE + PID_Process1 * 8;
-	// [PTBR_Process1 + 0] = 29; 	// Physical Page Number for Logical Page 0
-	// [PTBR_Process1 + 1] = "01";	// Not referenced and Valid
-	// [PTBR_Process1 + 2] = -1; 	// Invalid Page Number for Logical Page 1
-	// [PTBR_Process1 + 3] = "00";	// Not referenced and Not Valid
-	// [PTBR_Process1 + 4] = -1; 	// Invalid Page Number for Logical Page 2
-	// [PTBR_Process1 + 5] = "00";	// Not referenced and Not Valid
-	// [PTBR_Process1 + 6] = 30;	// Physical Page Number for Logical Page 3 
-	// [PTBR_Process1 + 7] = "01";	// Not referenced and Valid
-	
-	// alias PCB_Process1 S2;
-	// PCB_Process1 = READY_LIST + PID_Process1 * 32;
-	// [PCB_Process1 + 0] = PID_Process1; 	// Set the PID 
-	// [PCB_Process1 + 1] = 1; 			// STATE is READY 
-	// [PCB_Process1 + 2] = 3 * 512; 		// Sets th entry for BP in the PCB
-	// [PCB_Process1 + 3] = 3 * 512; 		// Sets the entry for SP in the PCB
-	// [PCB_Process1 + 4] = 0; 			// Sets the entry for IP to logical address 0 in the PCB 
-	// [PCB_Process1 + 5] = PTBR_Process1; // PTBR 
-	// [PCB_Process1 + 6] = 4; 			// PTLR 
+//INT 2
+//load (13, 7);
+//load (14, 8);
 
-// Setting 1st User process Over
+//INT 3
+//load (15, 9);
+//load (16, 10);
 
-// Setting the PCB and Page Table for the 2nd User Process
-	// load(31,29);				// Loading from Disk
-	// alias PID_Process2 S0;
-	// PID_Process2 = 2;
-	// alias PTBR_Process2 S1;
-	// PTBR_Process2 = PAGE_TABLE + PID_Process2 * 8;
-	// [PTBR_Process2 + 0] = 31; 	// Physical Page Number for Logical Page 0
-	// [PTBR_Process2 + 1] = "01";	// Not referenced and Valid
-	// [PTBR_Process2 + 2] = -1; 	// Invalid Page Number for Logical Page 1
-	// [PTBR_Process2 + 3] = "00";	// Not referenced and Not Valid
-	// [PTBR_Process2 + 4] = -1; 	// Invalid Page Number for Logical Page 2
-	// [PTBR_Process2 + 5] = "00";	// Not referenced and Not Valid
-	// [PTBR_Process2 + 6] = 32;	// Physical Page Number for Logical Page 3 
-	// [PTBR_Process2 + 7] = "01";	// Not referenced and Valid
-	
-	// alias PCB_Process2 S2;
-	// PCB_Process2 = READY_LIST + PID_Process2 * 32;
-	// [PCB_Process2 + 0] = PID_Process2; 	// Set the PID 
-	// [PCB_Process2 + 1] = 1; 			// STATE is READY 
-	// [PCB_Process2 + 2] = 3 * 512; 		// Sets th entry for BP in the PCB
-	// [PCB_Process2 + 3] = 3 * 512; 		// Sets the entry for SP in the PCB
-	// [PCB_Process2 + 4] = 0; 			// Sets the entry for IP to logical address 0 in the PCB 
-	// [PCB_Process2 + 5] = PTBR_Process2; // PTBR 
-	// [PCB_Process2 + 6] = 4; 			// PTLR 
+//INT 4
+//load (17, 11);
+//load (18, 12);
 
-// Setting 2nd User process Over
-
-print "OS-Over";
-//breakpoint;
 ireturn;
