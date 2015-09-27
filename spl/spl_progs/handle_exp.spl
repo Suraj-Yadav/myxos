@@ -1,2 +1,2 @@
-print "Exception";
+//print "Exception";
 halt;

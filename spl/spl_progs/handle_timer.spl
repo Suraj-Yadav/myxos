@@ -1,4 +1,4 @@
-print "timer Running";
+//print "timer Running";
 
 // Structure of PCB
 //	0	|	1	|	2	|	3	|	4	|	5	|	6	|	7-14	|	15-30	|
@@ -30,19 +30,22 @@ print "timer Running";
 	[ currentPCB + 14 ] = R7;		//
 	
 	
+	
 //Find the New Process to Take
 	alias newPID S4;
 	newPID = currentPID;
 	while (1) do
-	//	print "Checking ";	
+	//	//print "Checking ";	
 		newPID = (newPID+1)%32;
-	//	print newPID;
+	//	//print newPID;
 		if ([READY_LIST + 32 * newPID +1]==1) then
 			break;
 		endif;
 	endwhile;
-	print "RobbinOver";
-
+	//print "RobbinOver";
+	if (currentPID==newPID) then
+		ireturn;
+	endif;
 // Resume the New Process Found	
 	alias newPCB S3;
 	newPCB = READY_LIST + 32 * newPID;
@@ -63,8 +66,11 @@ print "timer Running";
 	alias newphysicalSP S2; 
 	newphysicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512); 
 	[ newphysicalSP ] = [ newPCB + 4 ]; 
+	//print newPID;
+	//print "IP";
+	//print [ newphysicalSP ];
 	// Stores IP field value of PCB on the stack
 	
-	
-print "UserTurn"; 
+	breakpoint;
+//print "UserTurn"; 
 ireturn;

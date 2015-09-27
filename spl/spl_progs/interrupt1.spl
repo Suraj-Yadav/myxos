@@ -1,4 +1,4 @@
-//print "In int 1";
+////print "In int 1";
 
 alias physicalSP S0;
 physicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512);
@@ -22,7 +22,7 @@ if (sysCallNo == 1) then
 		S4 = S4 + 8;
 	endwhile;
 
-//	print "While1 Exited";
+//	//print "While1 Exited";
 
 	//Search disk free list for free space
 	S4 = DISK_LIST;
@@ -37,7 +37,7 @@ if (sysCallNo == 1) then
 		S4 = S4 + 1;
 	endwhile;
 
-//	print "While2 Exited";
+//	//print "While2 Exited";
 
 	S4 = S4 - DISK_LIST;
 	alias BasicBlock S4;
@@ -55,7 +55,7 @@ if (sysCallNo == 1) then
 		S5 = S5 + 8;
 	endwhile;
 
-//	print "While3 Exited";
+//	//print "While3 Exited";
 
 	//Set FAT entry
 	[S5] = BasicBlock;
@@ -71,7 +71,7 @@ if (sysCallNo == 1) then
 		S6 = S6 + 1;
 	endwhile;
 
-//	print "While4 Exited";
+//	//print "While4 Exited";
 
 	//Store back to Disk
 	store(1, BasicBlock);

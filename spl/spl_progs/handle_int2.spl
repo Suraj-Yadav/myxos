@@ -1,17 +1,17 @@
-print "In INT 2";
+//print "In INT 2";
 alias physicalSP S0;
 physicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512);
 alias sysCallNo S1;
 sysCallNo = [physicalSP - 1];
 breakpoint;
-print "sysCallNo=";
-print sysCallNo;
+//print "sysCallNo=";
+//print sysCallNo;
 if (sysCallNo == 2) then
 	// Implementation of Open
 	alias filename S2;
 	filename = [physicalSP - 3];
-	print "filename=";
-	print filename;
+	//print "filename=";
+	//print filename;
 	
 	//Search the FAT for the existence of File
 	alias fatIndex S3;
@@ -24,7 +24,7 @@ if (sysCallNo == 2) then
 	endwhile;
 	
 	if(fatIndex == 64) then
-		print "FilenotExist";
+		//print "FilenotExist";
 		[physicalSP - 2] = -1;
 		ireturn;
 	endif;
@@ -43,13 +43,13 @@ if (sysCallNo == 2) then
 	endwhile;
 	
 	if (SWOTindex == 64) then
-		print "SWOT Full";
+		//print "SWOT Full";
 		[physicalSP - 2] = -1;
 		ireturn;
 	endif;
 	
-	print "SWOTI:";
-	print SWOTindex;
+	//print "SWOTI:";
+	//print SWOTindex;
 	
 	alias currentPID S5;
 	currentPID = (PTBR - 1024) / 8;
@@ -73,13 +73,13 @@ if (sysCallNo == 2) then
 	endwhile;
 	
 	if (PPFTIndex == 8) then
-		print "PPFT Full";
+		//print "PPFT Full";
 		[physicalSP - 2] = -1;
 		ireturn;
 	endif;
 	
-	print "PPFTIn";
-	print PPFTIndex;
+	//print "PPFTIn";
+	//print PPFTIndex;
 	
 	if([FILE_TABLE + 2*SWOTindex] == -1) then
 		[FILE_TABLE + 2*SWOTindex + 1] = 0;
@@ -99,12 +99,12 @@ if (sysCallNo == 3) then
 	// Get the File Descriptor
 	alias fileDescriptor S2;
 	fileDescriptor = [physicalSP - 3];
-	print "fileDescriptor=";
-	print fileDescriptor;
+	//print "fileDescriptor=";
+	//print fileDescriptor;
 	
 	// Check if the File Descriptor is Valid
 	if(fileDescriptor<0 || fileDescriptor>7) then
-		print "Invalid FD";
+		//print "Invalid FD";
 		[physicalSP - 2] = -1;
 		ireturn;
 	endif;
@@ -119,7 +119,7 @@ if (sysCallNo == 3) then
 	
 	// Check if the Entry there is Valid
 	if([PPFTStart+2*fileDescriptor] == -1) then
-		print "Invalid SWOT";
+		//print "Invalid SWOT";
 		[physicalSP - 2] = -1;
 		ireturn;
 	endif;
@@ -145,5 +145,5 @@ if (sysCallNo == 3) then
 	
 endif;
 [physicalSP - 2] = -1;
-print "InvalidSYSCall";
+//print "InvalidSYSCall";
 ireturn;

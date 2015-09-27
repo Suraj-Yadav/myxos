@@ -1,0 +1,227 @@
+//print "In INT 6";
+alias physicalSP S0;
+physicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512);
+alias sysCallNo S1;
+sysCallNo = [physicalSP - 1];
+if (sysCallNo == 9) then	//Exec System Call
+	alias filename S2;
+	filename = [physicalSP - 3];
+//	print "filename=";
+//	print filename;
+	
+	//Search the FAT for the existence of File
+	alias fatIndex S3;
+	fatIndex = 0;					
+	while (fatIndex < 64) do
+		if ([fatIndex*8 + FAT] == filename) then	
+			break;
+		endif;
+		fatIndex = fatIndex + 1;
+	endwhile;
+	
+	if(fatIndex == 64) then
+//		print "FilenotExist";
+		[physicalSP - 2] = -1;
+		ireturn;
+	endif;
+	
+	// Check if the Basic Block is Valid
+	alias basicBlock S4;
+	basicBlock = [FAT + fatIndex*8 + 2];
+	if (basicBlock == -1) then 
+		[physicalSP - 2] = -1;
+//		print "bBlk Invalid";
+		ireturn;
+	endif;
+	
+	load(1, basicBlock);
+	
+	alias i S5;
+	alias pages S6;
+	
+	//Count the number of Page needed
+	alias reqPages S7;
+	reqPages = 0;
+	while(1) do
+		if([SCRATCHPAD + reqPages] == -1 || [SCRATCHPAD + reqPages] == "") then
+			break;
+		endif;
+		//print [SCRATCHPAD + reqPages];
+		if(reqPages>2) then 
+			[physicalSP - 2] = -1;
+			//print "dataBlk>3";
+			ireturn;
+		endif;
+		reqPages = reqPages + 1;
+	endwhile;
+	
+	alias currentPTBR S8;
+	currentPTBR = PAGE_TABLE + ((PTBR - 1024) / 8) * 8;
+	
+	//Count the number of Pages currently used
+	alias usedPages S9;
+	usedPages = 0;
+	i = 0;
+	while(i<3) do
+		//print "page";
+		//print i;
+		if([currentPTBR + i*2 + 0]!=-1) then
+			usedPages = usedPages +1;
+		endif;
+		i = i + 1;
+	endwhile;
+	//print "usedPages";
+	//print usedPages;
+	
+	//print "reqPages";
+	//print reqPages;
+	
+	// Eqality Case
+	if(usedPages==reqPages) then	
+		i = 0;
+		while(i<3) do
+			//print "CopyPage=";
+			//print i;
+			if([SCRATCHPAD + i] != -1) then
+				load([currentPTBR + i*2 + 0],[SCRATCHPAD + i]);
+				[currentPTBR + i*2 + 1] = "01";
+				[MEM_LIST + [currentPTBR + i*2 + 0]] = 1;
+				//print "Copied=";
+				//print [currentPTBR + i*2 + 0];
+			endif;
+			i = i + 1;
+		endwhile;
+	endif;
+	
+	// Supply > Demand 
+	if(usedPages>reqPages) then
+		i=0;
+		while(i<reqPages) do
+			//print "CopyPage>";
+			//print i;
+			if([SCRATCHPAD + i] != -1) then
+				load([currentPTBR + i*2 + 0],[SCRATCHPAD + i]);
+				[currentPTBR + i*2 + 1] = "01";
+				[MEM_LIST + [currentPTBR + i*2 + 0]] = 1;
+			endif;
+			i = i + 1;
+		endwhile;
+		while(i<usedPages) do
+			//print "FreePage>";
+			//print i;
+			//print [currentPTBR + i*2 + 0];
+			[currentPTBR + i*2 + 0] = -1;
+			[currentPTBR + i*2 + 1] = "00";
+			[MEM_LIST + [currentPTBR + i*2 + 1]] = 0;
+			i = i + 1;
+		endwhile;		
+	endif;
+	
+	// Supply < Demand
+	if(usedPages<reqPages) then
+		i=25;
+		pages = 0;
+		while(pages+usedPages<reqPages) do
+			//print "Search<";
+			//print i;
+			if(i==64) then
+				[physicalSP - 2] = -1;
+				//print "NoFreePage";
+				ireturn;
+			endif;
+			if([MEM_LIST + i]==0) then
+				pages = pages+1;
+				//print "Found";
+				//print pages;
+			endif;
+			i = i + 1;
+		endwhile;
+		
+		pages = 0;
+		
+		while(pages<usedPages) do
+			//print "CopyPageO>";
+			//print pages;
+			if([SCRATCHPAD + pages] != -1) then
+				load([currentPTBR + pages*2 + 0],[SCRATCHPAD + pages]);
+				[currentPTBR + pages*2 + 1] = "01";
+				[MEM_LIST + [currentPTBR + pages*2 + 0]] = 1;
+			endif;
+			pages = pages + 1;
+		endwhile;
+		
+		i=25;
+		pages = 0;
+		while(pages+usedPages<reqPages) do
+			//print "CopyPageN<";
+			//print i;
+			if([MEM_LIST + i]==0) then
+				pages = pages+1;
+				load(i,[SCRATCHPAD + pages]);
+				[currentPTBR + pages*2 + 0] = i;
+				[currentPTBR + pages*2 + 1] = "01";
+				[MEM_LIST + [currentPTBR + pages*2 + 0]] = 1;
+				//print "Copied";
+				//print pages;
+			endif;
+			i = i + 1;
+		endwhile;
+	endif;
+	
+	//Close the files
+	//
+	//
+	//	
+	// Get the Start of Per Process Table
+	alias PPFTStart S10;
+	PPFTStart = READY_LIST + 32 * ((PTBR - 1024) / 8) + 15;
+	alias fileDescriptor S11;
+	fileDescriptor = 0;
+	while(fileDescriptor<8) do
+//		print "fileDescript";
+//		print fileDescriptor;
+		// Check if the Entry there is Valid
+		if([PPFTStart+2*fileDescriptor] == -1) then
+			//print "Invalid SWOT";
+			fileDescriptor = fileDescriptor + 1;
+			continue;
+		endif;
+		
+		// Get the SWOTindex 
+		alias SWOTindex S12;
+		SWOTindex = [PPFTStart+2*fileDescriptor];
+		
+		// Decrement File Open Count
+		[FILE_TABLE + 2*SWOTindex + 1] = [FILE_TABLE + 2*SWOTindex + 1] - 1;
+		
+		// Check if it Zero
+		if([FILE_TABLE + 2*SWOTindex + 1]==0) then
+			[FILE_TABLE + 2*SWOTindex] = -1;
+		endif;
+		
+		// Remove the Entry from PPFT
+		[PPFTStart+2*fileDescriptor] = -1;
+		[PPFTStart+2*fileDescriptor + 1] = -1;
+		fileDescriptor = fileDescriptor + 1;
+//		print "Got Here";
+	endwhile;
+	//
+	//
+	//
+	
+	SP = 3 * 512;
+	[currentPTBR + 6 + 1]="01";
+	[[currentPTBR + 6 + 0]*512] = 0;
+	
+	[physicalSP - 2] = 0;
+	//print "Switch";
+	breakpoint;
+	ireturn;
+endif;
+if (sysCallNo == 9) then	//Getpid System Call
+	[physicalSP - 2] = (PTBR - 1024) / 8;
+	ireturn;
+endif;
+[physicalSP - 2] = -1;
+//print "InvalidSYSCall";
+ireturn;

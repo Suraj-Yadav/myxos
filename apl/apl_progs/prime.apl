@@ -5,27 +5,35 @@ integer main(){
 	print ("Starting ");
 	print ("the User ");
 	print ("Code");
-	print ("Enter n");	//Comments
-	read(n);
-	d = 2;
-	num = 2;
-	print(num);
-	num = 3;
-	while num<=n do
-		d = 2;
-		flag = 0;
-		while d<num/2 do
-			if num%d==0 then
-				flag = 1;
-				break;
-			endif;
-			d = d+1;
-		endwhile;
-		if flag==0 then
-			print(num);
-		endif;
-		num = num + 1;		
-	endwhile;	
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +1);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +2);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +3);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +4);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +5);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +6);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +7);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +8);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +9);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +10);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +11);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +12);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +13);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +14);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +15);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +16);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +17);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +18);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +19);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +20);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +21);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +22);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +23);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +24);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +25);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +26);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +27);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +28);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +29);
+	print(0 + 0 * 2 * 5 +0 + 0 * 2 * 5 +30);
 	return 0;
 }	
-

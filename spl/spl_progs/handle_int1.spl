@@ -1,17 +1,17 @@
-print "In INT 1";
+//print "In INT 1";
 alias physicalSP S0;
 physicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512);
 alias sysCallNo S1;
 sysCallNo = [physicalSP - 1];
 breakpoint;
-print "sysCallNo=";
-print sysCallNo;
+//print "sysCallNo=";
+//print sysCallNo;
 if (sysCallNo == 1) then
 	// Implementation of Create
 	alias filename S2;
 	filename = [physicalSP - 3];
-	print "filename=";
-	print filename;
+	//print "filename=";
+	//print filename;
 	
 	//Search the FAT for the existence of File
 	alias currentFile S3;
@@ -19,20 +19,20 @@ if (sysCallNo == 1) then
 	while (currentFile < FAT + 512) do
 		if ([currentFile + 0] == filename) then	
 			[physicalSP - 2] = 0;
-			print "File Exists";
+			//print "File Exists";
 			ireturn;
 		endif;
 		currentFile = currentFile + 8;
 	endwhile;
-	print "File not Exist";
+	//print "File not Exist";
 	
 	//Search the Disk Free List for free Block 
 	alias freeBlock S3;
 	freeBlock = 24;
 	while (freeBlock < 447) do
 		if ([freeBlock + DISK_LIST] == 0) then	
-			print "FreeSpace";
-			print freeBlock;
+			//print "FreeSpace";
+			//print freeBlock;
 			break;
 		endif;
 		freeBlock = freeBlock + 1;
@@ -40,7 +40,7 @@ if (sysCallNo == 1) then
 	
 	if (freeBlock == 447) then	
 		[physicalSP - 2] = -1;
-		print "No FreeSpace";
+		//print "No FreeSpace";
 		ireturn;
 	endif;
 	
@@ -49,18 +49,18 @@ if (sysCallNo == 1) then
 	freeFatLoc = FAT;
 	while (freeFatLoc < FAT + 512) do
 		if ([freeFatLoc + 2] == -1) then	
-			print "FatBlock Exists";
+			//print "FatBlock Exists";
 			break;
 		endif;
 		freeFatLoc = freeFatLoc + 8;
 	endwhile;
 	if (freeFatLoc == FAT + 512) then	
 		[physicalSP - 2] = -1;
-		print "No FAT Block";
+		//print "No FAT Block";
 		ireturn;
 	endif;
-	print "free FAT Loc";
-	print freeFatLoc - FAT;
+	//print "free FAT Loc";
+	//print freeFatLoc - FAT;
 	[freeFatLoc + 0] = filename;
 	[freeFatLoc + 1] = 0;
 	[freeFatLoc + 2] = freeBlock;
@@ -89,14 +89,14 @@ if (sysCallNo == 4) then
 	breakpoint;
 	alias filename S2;
 	filename = [physicalSP - 3];
-	print "filename=";
-	print filename;
+	//print "filename=";
+	//print filename;
 	
 	//Find the File in FAT
 	alias currentFile S3;
 	currentFile = 0;
 	while (currentFile < 512) do
-		print [currentFile + FAT + 0];
+		//print [currentFile + FAT + 0];
 		if ([currentFile + FAT + 0] == filename) then	
 			break;
 		endif;
@@ -104,10 +104,10 @@ if (sysCallNo == 4) then
 	endwhile;
 	if (currentFile == 512) then
 		[physicalSP - 2] = -1;
-		print "FileNotFound";
+		//print "FileNotFound";
 		ireturn;
 	endif;
-	print "File Found";
+	//print "File Found";
 	
 	//Check if the File is being Used
 	alias counter S4;
@@ -115,7 +115,7 @@ if (sysCallNo == 4) then
 	while ( counter <  128) do
 		if ([FILE_TABLE + counter] == currentFile) then
 			[physicalSP - 2] = -1;
-			print "File in Use";
+			//print "File in Use";
 			ireturn;
 		endif;
 		counter = counter + 2;			// Move to next entry
@@ -126,12 +126,12 @@ if (sysCallNo == 4) then
 	basicBlock = [FAT + currentFile + 2];
 	if (basicBlock == -1) then 
 		[physicalSP - 2] = -1;
-		print "bBlk Invalid";
+		//print "bBlk Invalid";
 		ireturn;
 	endif;
 	
-	print "basicBlock=";
-	print basicBlock;
+	//print "basicBlock=";
+	//print basicBlock;
 	
 	
 	// Delete the Data Blocks
@@ -144,8 +144,8 @@ if (sysCallNo == 4) then
 		if(dataBlock == -1) then
 			break;
 		endif;
-		print "dataBlock=";
-		print dataBlock;
+		//print "dataBlock=";
+		//print dataBlock;
 		load(1, dataBlock);
 		alias i S8;
 		i = 0;
@@ -183,5 +183,5 @@ if (sysCallNo == 4) then
 	
 endif;
 [physicalSP - 2] = -1;
-print "InvalidSYSCall";
+//print "InvalidSYSCall";
 ireturn;
