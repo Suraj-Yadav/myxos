@@ -4,16 +4,18 @@ integer main()
 	print ("Before Fork");
 	pid = Fork();
 	if(pid!=-2) then
-		Exit();
+		pid = Exit();
 	endif;
 	print ("After Fork1");
 	pid = Fork();
-	print ("After Fork2");
+	if(pid!=-2) then
+		pid = Exit();
+	endif;
+	print ("After Fork1");
 	pid = Fork();
 	if(pid!=-2) then
-		Exit();
+		pid = Exit();
 	endif;
-	print ("After Fork3");
-	breakpoint;
+	print ("After Fork1");
 	return 0;
 }

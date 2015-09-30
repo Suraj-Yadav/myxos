@@ -3,14 +3,15 @@ decl
 	integer num;
 enddecl
 integer main(){
-//	print("Before Fork");
+	print("Before Fork");
 	pid = Fork();
 	if(pid!=-2) then
 		num = Exec("even.xsm");
 	endif;
-//	print("After Fork");
 	print(1);
 	print(3);
+	// pid = Fork();
+	// print("After Fork2");
 	print(5);
 	print(7);
 	print(9);

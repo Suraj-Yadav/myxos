@@ -63,8 +63,44 @@ while ( counter <  64) do					// 64 entries, each of size 2 words
 endwhile;	
 
 // Load The INIT Process into memory
+	load(25,21);			// 
+	load(26,22); 			// Load pages of code from disk to memory
+	load(27,23); 			// 
+
+	PTBR = PAGE_TABLE; 			// Set the Address of Page Table
+	PTLR = 4; 				// Set the length of Page Table
+	
+	[PTBR + 0] = 25; 		// 
+	[PTBR + 1] = "01"; 		// 
+	[MEM_LIST + 25]=1;		//
+	[PTBR + 2] = 26; 		// Setting the Physical Pages 
+	[PTBR + 3] = "01"; 		// for the Logical Pages
+	[MEM_LIST + 26]=1;		//
+	[PTBR + 4] = 27; 		// Also Adding the aux info
+	[PTBR + 5] = "01"; 		//
+	[MEM_LIST + 27]=1;		//
+	[PTBR + 6] = 28; 		// Setting the page for stack
+	[PTBR + 7] = "01"; 		// Auxiliary Information for Logical Page 3 (Stack)
+	[MEM_LIST + 28]=1;		//
+	
+	SP = 3 * 512; 			// Set the start of the Stack
+	[28 * 512] = 0; 		// Set up the IP value for INIT as the top of stack 
+							// so when INIT process is started by system IP is set as 0
+
+	
 	[READY_LIST + 0] = 0; 	// Sets the entry for PID as 0 
 	[READY_LIST + 1] = 2; 	// Sets the entry for STATE as Running 
+	[READY_LIST + 4 ] = 0; // Save IP of current process in the PCB from the stack
+	[READY_LIST + 5 ] = PTBR;		// Save PTBR
+	[READY_LIST + 6 ] = PTLR;		// Save PTLR
+	[READY_LIST + 7 ] = R0;		//
+	[READY_LIST + 8 ] = R1;		//
+	[READY_LIST + 9 ] = R2;		//	Save the Registers
+	[READY_LIST + 10 ] = R3;		//
+	[READY_LIST + 11 ] = R4;		//
+	[READY_LIST + 12 ] = R5;		//
+	[READY_LIST  + 13 ] = R6;		//
+	[READY_LIST  + 14 ] = R7;		//
 	
 	// Setting the Per Process File Table Entries as Invalid
 	[READY_LIST + 15 + 0] = -1;
@@ -75,30 +111,8 @@ endwhile;
 	[READY_LIST + 15 + 10] = -1;
 	[READY_LIST + 15 + 12] = -1;
 	[READY_LIST + 15 + 14] = -1;
-
-	load(25,21);			// 
-//	load(26,22); 			// Load pages of code from disk to memory
-//	load(27,23); 			// 
-
-	PTBR = PAGE_TABLE; 			// Set the Address of Page Table
-	PTLR = 4; 				// Set the length of Page Table
-
-	[PTBR + 0] = 25; 		// 
-	[PTBR + 1] = "01"; 		// 
-	[MEM_LIST + 25]=1;		//
-	[PTBR + 2] = -1; 		// Setting the Physical Pages 
-	[PTBR + 3] = "00"; 		// for the Logical Pages
-//	[MEM_LIST + 26]=1;		//
-	[PTBR + 4] = -1; 		// Also Adding the aux info
-	[PTBR + 5] = "00"; 		//
-//	[MEM_LIST + 27]=1;		//
-	[PTBR + 6] = 28; 		// Setting the page for stack
-	[PTBR + 7] = "01"; 		// Auxiliary Information for Logical Page 3 (Stack)
-	[MEM_LIST + 28]=1;		//
-
-	SP = 3 * 512; 			// Set the start of the Stack
-	[28 * 512] = 0; 		// Set up the IP value for INIT as the top of stack 
-							// so when INIT process is started by system IP is set as 0
+	
+	[READY_LIST + 31] = "nan"; 	// Sets the Parent PID as -1 
 // Loading INIT Process Complete
 
 // Structure of PCB

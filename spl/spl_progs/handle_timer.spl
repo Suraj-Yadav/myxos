@@ -35,9 +35,9 @@
 	alias newPID S4;
 	newPID = currentPID;
 	while (1) do
-	//	//print "Checking ";	
+		//print "Checking ";	
 		newPID = (newPID+1)%32;
-	//	//print newPID;
+		//print newPID;
 		if ([READY_LIST + 32 * newPID +1]==1) then
 			break;
 		endif;
@@ -47,6 +47,9 @@
 		ireturn;
 	endif;
 // Resume the New Process Found	
+	//print "newPID";
+	//print newPID;
+
 	alias newPCB S3;
 	newPCB = READY_LIST + 32 * newPID;
 	[ newPCB + 1 ] = 2; 	// Set STATE to READY
@@ -66,9 +69,6 @@
 	alias newphysicalSP S2; 
 	newphysicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512); 
 	[ newphysicalSP ] = [ newPCB + 4 ]; 
-	//print newPID;
-	//print "IP";
-	//print [ newphysicalSP ];
 	// Stores IP field value of PCB on the stack
 	
 	breakpoint;

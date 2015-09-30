@@ -3,9 +3,10 @@ alias physicalSP S0;
 physicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512);
 alias sysCallNo S1;
 sysCallNo = [physicalSP - 1];
+physicalSP = physicalSP - 2;
 if (sysCallNo == 9) then	//Exec System Call
 	alias filename S2;
-	filename = [physicalSP - 3];
+	filename = [physicalSP - 1];
 //	print "filename=";
 //	print filename;
 	
@@ -20,8 +21,8 @@ if (sysCallNo == 9) then	//Exec System Call
 	endwhile;
 	
 	if(fatIndex == 64) then
-//		print "FilenotExist";
-		[physicalSP - 2] = -1;
+	//	print "FilenotExist";
+		[physicalSP] = -1;
 		ireturn;
 	endif;
 	
@@ -29,8 +30,8 @@ if (sysCallNo == 9) then	//Exec System Call
 	alias basicBlock S4;
 	basicBlock = [FAT + fatIndex*8 + 2];
 	if (basicBlock == -1) then 
-		[physicalSP - 2] = -1;
-//		print "bBlk Invalid";
+		[physicalSP] = -1;
+	//	print "bBlk Invalid";
 		ireturn;
 	endif;
 	
@@ -46,10 +47,10 @@ if (sysCallNo == 9) then	//Exec System Call
 		if([SCRATCHPAD + reqPages] == -1 || [SCRATCHPAD + reqPages] == "") then
 			break;
 		endif;
-		//print [SCRATCHPAD + reqPages];
+	//	print [SCRATCHPAD + reqPages];
 		if(reqPages>2) then 
-			[physicalSP - 2] = -1;
-			//print "dataBlk>3";
+			[physicalSP] = -1;
+		//	print "dataBlk>3";
 			ireturn;
 		endif;
 		reqPages = reqPages + 1;
@@ -63,42 +64,42 @@ if (sysCallNo == 9) then	//Exec System Call
 	usedPages = 0;
 	i = 0;
 	while(i<3) do
-		//print "page";
-		//print i;
+	//	print "page";
+	//	print i;
 		if([currentPTBR + i*2 + 0]!=-1) then
 			usedPages = usedPages +1;
 		endif;
 		i = i + 1;
 	endwhile;
-	//print "usedPages";
-	//print usedPages;
+//	print "usedPages";
+//	print usedPages;
 	
-	//print "reqPages";
-	//print reqPages;
+//	print "reqPages";
+//	print reqPages;
 	
 	// Eqality Case
-	if(usedPages==reqPages) then	
-		i = 0;
-		while(i<3) do
-			//print "CopyPage=";
-			//print i;
-			if([SCRATCHPAD + i] != -1) then
-				load([currentPTBR + i*2 + 0],[SCRATCHPAD + i]);
-				[currentPTBR + i*2 + 1] = "01";
-				[MEM_LIST + [currentPTBR + i*2 + 0]] = 1;
-				//print "Copied=";
-				//print [currentPTBR + i*2 + 0];
-			endif;
-			i = i + 1;
-		endwhile;
-	endif;
+//	if(usedPages==reqPages) then	
+//		i = 0;
+//		while(i<3) do
+//		//	print "CopyPage=";
+//		//	print i;
+//			if([SCRATCHPAD + i] != -1) then
+//				load([currentPTBR + i*2 + 0],[SCRATCHPAD + i]);
+//				[currentPTBR + i*2 + 1] = "01";
+//				[MEM_LIST + [currentPTBR + i*2 + 0]] = 1;
+//			//	print "Copied=";
+//			//	print [currentPTBR + i*2 + 0];
+//			endif;
+//			i = i + 1;
+//		endwhile;
+//	endif;
 	
 	// Supply > Demand 
-	if(usedPages>reqPages) then
+	if(usedPages>=reqPages) then
 		i=0;
 		while(i<reqPages) do
-			//print "CopyPage>";
-			//print i;
+		//	print "CopyPage>";
+		//	print i;
 			if([SCRATCHPAD + i] != -1) then
 				load([currentPTBR + i*2 + 0],[SCRATCHPAD + i]);
 				[currentPTBR + i*2 + 1] = "01";
@@ -107,9 +108,9 @@ if (sysCallNo == 9) then	//Exec System Call
 			i = i + 1;
 		endwhile;
 		while(i<usedPages) do
-			//print "FreePage>";
-			//print i;
-			//print [currentPTBR + i*2 + 0];
+		//	print "FreePage>";
+		//	print i;
+		//	print [currentPTBR + i*2 + 0];
 			[currentPTBR + i*2 + 0] = -1;
 			[currentPTBR + i*2 + 1] = "00";
 			[MEM_LIST + [currentPTBR + i*2 + 1]] = 0;
@@ -122,17 +123,17 @@ if (sysCallNo == 9) then	//Exec System Call
 		i=25;
 		pages = 0;
 		while(pages+usedPages<reqPages) do
-			//print "Search<";
-			//print i;
+		//	print "Search<";
+		//	print i;
 			if(i==64) then
-				[physicalSP - 2] = -1;
-				//print "NoFreePage";
+				[physicalSP] = -1;
+			//	print "NoFreePage";
 				ireturn;
 			endif;
 			if([MEM_LIST + i]==0) then
 				pages = pages+1;
-				//print "Found";
-				//print pages;
+			//	print "Found";
+			//	print pages;
 			endif;
 			i = i + 1;
 		endwhile;
@@ -140,8 +141,8 @@ if (sysCallNo == 9) then	//Exec System Call
 		pages = 0;
 		
 		while(pages<usedPages) do
-			//print "CopyPageO>";
-			//print pages;
+		//	print "CopyPageO>";
+		//	print pages;
 			if([SCRATCHPAD + pages] != -1) then
 				load([currentPTBR + pages*2 + 0],[SCRATCHPAD + pages]);
 				[currentPTBR + pages*2 + 1] = "01";
@@ -153,16 +154,16 @@ if (sysCallNo == 9) then	//Exec System Call
 		i=25;
 		pages = 0;
 		while(pages+usedPages<reqPages) do
-			//print "CopyPageN<";
-			//print i;
+		//	print "CopyPageN<";
+		//	print i;
 			if([MEM_LIST + i]==0) then
 				pages = pages+1;
 				load(i,[SCRATCHPAD + pages]);
 				[currentPTBR + pages*2 + 0] = i;
 				[currentPTBR + pages*2 + 1] = "01";
 				[MEM_LIST + [currentPTBR + pages*2 + 0]] = 1;
-				//print "Copied";
-				//print pages;
+			//	print "Copied";
+			//	print pages;
 			endif;
 			i = i + 1;
 		endwhile;
@@ -178,11 +179,11 @@ if (sysCallNo == 9) then	//Exec System Call
 	alias fileDescriptor S11;
 	fileDescriptor = 0;
 	while(fileDescriptor<8) do
-//		print "fileDescript";
-//		print fileDescriptor;
+	//	print "fileDescript";
+	//	print fileDescriptor;
 		// Check if the Entry there is Valid
 		if([PPFTStart+2*fileDescriptor] == -1) then
-			//print "Invalid SWOT";
+		//	print "Invalid SWOT";
 			fileDescriptor = fileDescriptor + 1;
 			continue;
 		endif;
@@ -203,7 +204,7 @@ if (sysCallNo == 9) then	//Exec System Call
 		[PPFTStart+2*fileDescriptor] = -1;
 		[PPFTStart+2*fileDescriptor + 1] = -1;
 		fileDescriptor = fileDescriptor + 1;
-//		print "Got Here";
+//	//	print "Got Here";
 	endwhile;
 	//
 	//
@@ -213,15 +214,20 @@ if (sysCallNo == 9) then	//Exec System Call
 	[currentPTBR + 6 + 1]="01";
 	[[currentPTBR + 6 + 0]*512] = 0;
 	
-	[physicalSP - 2] = 0;
-	//print "Switch";
+	[physicalSP] = 0;
+//	print "Switch";
 	breakpoint;
 	ireturn;
 endif;
-if (sysCallNo == 9) then	//Getpid System Call
-	[physicalSP - 2] = (PTBR - 1024) / 8;
+if (sysCallNo == 11) then	//Getpid System Call
+	[physicalSP] = (PTBR - 1024) / 8;
 	ireturn;
 endif;
-[physicalSP - 2] = -1;
-//print "InvalidSYSCall";
+if (sysCallNo == 12) then	//Getpid System Call
+	[physicalSP] = [READY_LIST + ((PTBR - 1024) / 8) * 32 + 31];
+	ireturn;
+endif;
+
+[physicalSP] = -1;
+print "InvalidSYSCall";
 ireturn;

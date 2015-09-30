@@ -13,12 +13,12 @@ if (sysCallNo == 6) then
 	// Get the File Descriptor
 	alias fileDescriptor S2;
 	fileDescriptor = [physicalSP - 4];
-	//print "fileDescriptor=";
-	//print fileDescriptor;
+//	print "fileDescriptor=";
+//	print fileDescriptor;
 	
 	// Check if the File Descriptor is Valid
 	if(fileDescriptor<0 || fileDescriptor>7) then
-		//print "Invalid FD";
+	//	print "Invalid FD";
 		[physicalSP - 2] = -1;
 		ireturn;
 	endif;
@@ -33,7 +33,7 @@ if (sysCallNo == 6) then
 	
 	// Check if the Entry there is Valid
 	if([PPFTStart+2*fileDescriptor] == -1) then
-		//print "Invalid SWOT";
+	//	print "Invalid SWOT";
 		[physicalSP - 2] = -1;
 		ireturn;
 	endif;
@@ -50,15 +50,15 @@ if (sysCallNo == 6) then
 	alias fatIndex S7;
 	fatIndex = [FILE_TABLE + 2 * SWOTindex];
 	
-	//print "fatIndex=";
-	//print fatIndex;
+//	print "fatIndex=";
+//	print fatIndex;
 	
 	alias size S8;
 	size = [FAT + 8 * fatIndex + 1];
 	
 	if (newLSeek < 0 || newLSeek >= size) then	
 		[physicalSP - 2] = -1;
-		//print "No FreeSpace";
+	//	print "No FreeSpace";
 		ireturn;
 	endif;
 	
@@ -74,12 +74,12 @@ if (sysCallNo == 7) then
 	// Get the File Descriptor
 	alias fileDescriptor S2;
 	fileDescriptor = [physicalSP - 4];
-	//print "fileDescriptor=";
-	//print fileDescriptor;
+//	print "fileDescriptor=";
+//	print fileDescriptor;
 	
 	// Check if the File Descriptor is Valid
 	if(fileDescriptor<0 || fileDescriptor>7) then
-		//print "Invalid FD";
+	//	print "Invalid FD";
 		[physicalSP - 2] = -1;
 		ireturn;
 	endif;
@@ -94,7 +94,7 @@ if (sysCallNo == 7) then
 	
 	// Check if the Entry there is Valid
 	if([PPFTStart+2*fileDescriptor] == -1) then
-		//print "Invalid SWOT";
+	//	print "Invalid SWOT";
 		[physicalSP - 2] = -1;
 		ireturn;
 	endif;
@@ -103,8 +103,8 @@ if (sysCallNo == 7) then
 	alias SWOTindex S5;
 	SWOTindex = [PPFTStart+2*fileDescriptor];
 	
-	//print "SWOTI:";
-	//print SWOTindex;
+//	print "SWOTI:";
+//	print SWOTindex;
 	
 	// Get the LSEEK 
 	alias lSeek S6;
@@ -114,14 +114,14 @@ if (sysCallNo == 7) then
 	alias fatIndex S7;
 	fatIndex = [FILE_TABLE + 2 * SWOTindex];
 	
-	//print "fatIndex=";
-	//print fatIndex;
+//	print "fatIndex=";
+//	print fatIndex;
 	
 	alias size S10;
 	size = [FAT + 8 * fatIndex + 1];
 	
 	if(size == lSeek) then
-		//print "File Complete";
+	//	print "File Complete";
 		[physicalSP - 2] = -1;
 		ireturn;
 	endif;
@@ -129,8 +129,8 @@ if (sysCallNo == 7) then
 	alias basicBlock S8;
 	basicBlock = [FAT + 8 * fatIndex + 2];
 	
-	//print "BasicBlock=";
-	//print basicBlock;
+//	print "BasicBlock=";
+//	print basicBlock;
 	
 	load(1, basicBlock);
 	
@@ -148,5 +148,5 @@ if (sysCallNo == 7) then
 	
 endif;
 [physicalSP - 2] = -1;
-//print "InvalidSYSCall";
+print "InvalidSYSCall";
 ireturn;
