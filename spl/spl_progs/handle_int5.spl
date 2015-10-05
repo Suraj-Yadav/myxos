@@ -16,7 +16,7 @@ if (sysCallNo == 8) then
 	// Find Free PCB for Child
 	alias PCBSlot S3;
 	PCBSlot = 0;
-	while ( PCBSlot <  64) do					// 64 entries, each of size 2 words
+	while ( PCBSlot <  32) do					// 32 entries, each of size 32 words
 		if([ READY_LIST + 32*PCBSlot + 1] ==  0) then
 		//	print "PCBSlot=";
 		//	print PCBSlot;	
@@ -25,7 +25,7 @@ if (sysCallNo == 8) then
 		PCBSlot = PCBSlot + 1;					// Move to next entry
 	endwhile;
 	
-	if(PCBSlot==64) then
+	if(PCBSlot==32) then
 	//	print "No PCBSlot";
 		[parentPhySP - 2] = -1;
 		ireturn;

@@ -1,4 +1,4 @@
-print "In INT 7";
+//print "In INT 7";
 alias physicalSP S0;
 physicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512);
 alias sysCallNo S1;
@@ -18,12 +18,12 @@ if (sysCallNo == 10) then	//Exit System Call
 	[ currentPCB + 1 ] = 0; 	// Set STATE to OVER
 //	breakpoint;
 	while (newPID < 32) do
-		//print "Checking ";	
-		newPID = newPID+1;
-		//print newPID;
+//		print "Checking ";	
+//		print newPID;
 		if ([READY_LIST + 32 * newPID +1]==(currentPID+100)) then
 			[READY_LIST + 32 * newPID +1] = 1;
 		endif;
+		newPID = newPID+1;
 	endwhile;
 	
 	newPID = 0;

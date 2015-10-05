@@ -6,6 +6,7 @@ integer main()
 	breakpoint;
 	print ("Before Fork");
 	pid = Fork();
+//	pid = Fork();
 	breakpoint;
 	if(pid!=-2) then 
 		print("waiting");
@@ -29,8 +30,9 @@ integer main()
 		print(selfPid);
 		print("parPid");
 		print(parPid);
-		selfPid = Wait(parPid);
-		print(parPid);
+		//selfPid = Signal();
+		//selfPid = Wait(parPid);
+		//print(parPid);
 	endif;
 	return 0;
 }
