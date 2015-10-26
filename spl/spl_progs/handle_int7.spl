@@ -1,78 +1,63 @@
-//print "In INT 7";
+// print "In INT 7";
 alias physicalSP S0;
 physicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512);
 alias sysCallNo S1;
 sysCallNo = [physicalSP - 1];
-//print "sysCallNo";
-//print sysCallNo;
+// print sysCallNo;
 alias currentPID S2;
 currentPID = (PTBR - 1024) / 8;
-//print "currentPID";
-//print currentPID;
-breakpoint;
+// print currentPID;
 alias newPID S3;
+alias currentPCB S4;
+currentPCB = READY_LIST + 32 * currentPID;
+alias newPCB S5;
+breakpoint;
 if (sysCallNo == 10) then	//Exit System Call
-	newPID = 0;
-	alias currentPCB S4;
-	currentPCB = READY_LIST + 32 * currentPID;
+	alias i S6;
+	newPID = -1;
+	i = READY_LIST + 1;
 	[ currentPCB + 1 ] = 0; 	// Set STATE to OVER
-//	breakpoint;
-	while (newPID < 32) do
-//		print "Checking ";	
-//		print newPID;
-		if ([READY_LIST + 32 * newPID +1]==(currentPID+100)) then
-			[READY_LIST + 32 * newPID +1] = 1;
+	// breakpoint;
+	while (i < READY_LIST + 1024) do
+		if ([i]==(currentPID+100)) then
+			[i] = 1;
 		endif;
-		newPID = newPID+1;
+		if (newPID == -1 && [i] == 1) then
+			newPID = (i - READY_LIST - 1) / 32;
+		endif;
+		i = i+32;
 	endwhile;
 	
-	newPID = 0;
+	if(newPID==-1) then
+		halt;
+	endif;
 	
-	while (newPID<32) do
-		//print "Checking ";	
-		//print newPID;
-		if ([READY_LIST + 32 * newPID +1]==1) then
-			break;
-		endif;
-		newPID = newPID+1;
-		if(newPID == 32) then
-			halt;
-		endif;
-	endwhile;
-	//print "RobbinOver";
+	// print "newPID";
+	// print newPID;
 	
-	//print "newPID";
-	//print newPID;
-
-	
-	alias newPCB S5;
-	newPCB = READY_LIST + 32 * newPID;
-	
-	alias currentPTBR S6;
+	alias currentPTBR S7;
 	currentPTBR = PAGE_TABLE + currentPID * 8;
 	
-	//Close the files
-	//
-	//
-	//	
 	// Get the Start of Per Process Table
-	alias PPFTStart S9;
+	alias PPFTStart S8;
+	alias fileDescriptor S9;
+	alias SWOTindex S10;
+	
 	PPFTStart = currentPCB + 15;
-	alias fileDescriptor S10;
 	fileDescriptor = PPFTStart;
 	PPFTStart = PPFTStart + 16;
+	
 	while(fileDescriptor<PPFTStart) do
-		//print "fileDescript";
-		//print fileDescriptor;
+		// print "fileDescript";
+		// print fileDescriptor;
 		// Check if the Entry there is Valid
 		if([fileDescriptor] == -1) then
-			//print "Invalid SWOT";
+			// print "Invalid SWOT";
 			fileDescriptor = fileDescriptor + 2;
 			continue;
 		endif;
 		
 		// Get the SWOTindex 
-		alias SWOTindex S11;
 		SWOTindex = FILE_TABLE + 2*[fileDescriptor] + 1;
 		// Check this wierd stuff ^
 		
@@ -88,92 +73,63 @@ if (sysCallNo == 10) then	//Exit System Call
 		[fileDescriptor] = -1;
 		[fileDescriptor + 1] = -1;
 		fileDescriptor = fileDescriptor + 2;
-		//print "Got Here";
+		// print "Got Here";
 	endwhile;
 	//
 	//
 	//
-	
-	alias page S7;
-	page = 0;
-	while(page<4) do
-		//print "page";
-		//print page;
-		//print [currentPTBR + page];
-		if([currentPTBR + page]!=-1) then
-			[MEM_LIST + [currentPTBR + page]] = 0;
+	i = currentPTBR;
+	while(i<6) do
+		// print "page";
+		// print i;
+		if([i]!=-1) then
+			if([i + 1]=="11" || [i + 1]=="01") then
+				[MEM_LIST + [i]] = [MEM_LIST + [i]] - 1;
+			else
+				if([i]>=448) then
+					[DISK_LIST + [i]] = [DISK_LIST + [i]] - 1;
+				endif;
+			endif;
+			[i] = -1;
+			[i + 1] = "00";
 		endif;
-		[currentPTBR + page] = -1;
-		[currentPTBR + page] = "00";
-		page = page + 2;
+		i = i + 2;
 	endwhile;
 	
-	[ newPCB + 1 ] = 2; 	// Set STATE to READY
-	BP = [ newPCB + 2 ];	//
-	SP = [ newPCB + 3 ]; 	//
-	PTBR = [ newPCB + 5 ];	//
-	PTLR = [ newPCB + 6 ];	//
-	R0 = [ newPCB + 7 ];	//
-	R1 = [ newPCB + 8 ];	// Copy Back the values
-	R2 = [ newPCB + 9 ];	//
-	R3 = [ newPCB + 10 ]; 	//
-	R4 = [ newPCB + 11 ]; 	//
-	R5 = [ newPCB + 12 ]; 	//
-	R6 = [ newPCB + 13 ]; 	//
-	R7 = [ newPCB + 14 ];	//
-	SP = SP + 1; 			// Make space for storing the IP on top as after interrupt it is loaded from there
-	alias newphysicalSP S8; 
-	newphysicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512); 
-	[ newphysicalSP ] = [ newPCB + 4 ]; 
-	[physicalSP - 2] = 0;
 	breakpoint;
-	ireturn;
+	store(6,20);
+	
 endif;
 if (sysCallNo == 13) then	//Wait System Call
-	alias waitingPID S4;
+	alias waitingPID S12;
 	waitingPID = [physicalSP - 3];
-	currentPID = (PTBR - 1024) / 8;
 	
 	// Check if it is Valid
-	if(waitingPID<0 || waitingPID>31) then
+	if(waitingPID<0 || waitingPID>31 || currentPID == waitingPID || [READY_LIST + 32 * waitingPID +1]==0) then
 		[physicalSP - 2] = -1;
-//		print "invalidWait";
+		// print "invalidWait";
+		// print "Out INT 7";
 		ireturn;
 	endif;
 	
-	// Check if both are same
-	if(currentPID == waitingPID) then
-		[physicalSP - 2] = -1;
-//		print "curr=wait";
-		ireturn;
-	endif;
-	
-	// Check if wait is already over
-	if([READY_LIST + 32 * waitingPID +1]==0) then
-		[physicalSP - 2] = -1;
-//		print "wait dead";
-		ireturn;
-	endif;
-
 	newPID = waitingPID + 100;
 	while(newPID>=100) do
 		if(currentPID + 100 == newPID) then
 			[physicalSP - 2] = -1;
-			print "CyclicDep";
+			// print "CyclicDep";
+			// print "Out INT 7";
 			ireturn;
 		endif;
-		newPID = newPID - 100;
-		newPID = [READY_LIST + 32 * newPID +1];
+		newPID = [READY_LIST + 32 * (newPID-100) +1];
 	endwhile;
 	
-	
-	alias currentPCB S6;
-	currentPCB = READY_LIST + 32 * currentPID;
 	[ currentPCB + 1 ]= waitingPID + 100;	//Change the state to wait
 	[ currentPCB + 2 ] = BP;		// Save BP
 	[ currentPCB + 3 ] = SP - 1; 	// Save SP. -1 coz interrupt pushed the IP in Stack
 	[ currentPCB + 4 ] = [ physicalSP ]; // Save IP of current process in the PCB from the stack
+	// print "before";
 	[ currentPCB + 5 ] = PTBR;		// Save PTBR
+	// print "after";
 	[ currentPCB + 6 ] = PTLR;		// Save PTLR
 	[ currentPCB + 7 ] = R0;		//
 	[ currentPCB + 8 ] = R1;		//
@@ -185,11 +141,10 @@ if (sysCallNo == 13) then	//Wait System Call
 	[ currentPCB + 14 ] = R7;		//
 	
 //Find the New Process to Take
-//	alias newPID S5;
 	newPID = 0;
 	while (newPID<32) do
-		//print "Checking ";	
-		//print newPID;
+		// print "Checking ";	
+		// print newPID;
 		if ([READY_LIST + 32 * newPID +1]==1) then
 			break;
 		endif;
@@ -198,9 +153,12 @@ if (sysCallNo == 13) then	//Wait System Call
 			halt;
 		endif;
 	endwhile;
-	//print "RobbinOver";
-// Resume the New Process Found	
-	alias newPCB S7;
+	// print "RobbinOver";
+endif;
+if (sysCallNo == 13 || sysCallNo == 10) then
+	// Resume the New Process Found	
+	// print sysCallNo;
+	// print newPID;
 	newPCB = READY_LIST + 32 * newPID;
 	[ newPCB + 1 ] = 2; 	// Set STATE to READY
 	BP = [ newPCB + 2 ];	//
@@ -216,27 +174,30 @@ if (sysCallNo == 13) then	//Wait System Call
 	R6 = [ newPCB + 13 ]; 	//
 	R7 = [ newPCB + 14 ];	//
 	SP = SP + 1; 			// Make space for storing the IP on top as after interrupt it is loaded from there
-	alias newphysicalSP S8; 
+	alias newphysicalSP S14; 
 	newphysicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512); 
 	[ newphysicalSP ] = [ newPCB + 4 ]; 
 	[physicalSP - 2] = 0;
-//	breakpoint;
+	breakpoint;
+	// print "Out INT 7";
+//	print newphysicalSP;
+	breakpoint;
 	ireturn;
 endif;
 if (sysCallNo == 14) then	//Signal System Call
-	newPID = 0;
-	
-	while (newPID<32) do
-		//print "Checking ";	
-		//print newPID;
-		if ([READY_LIST + 32 * newPID +1]==(currentPID+100)) then
-			[READY_LIST + 32 * newPID +1] = 1;
+	newPID = 1;
+	while (newPID<1024) do
+		// print "Checking ";	
+		// print newPID;
+		if ([READY_LIST + newPID]==(currentPID+100)) then
+			[READY_LIST + newPID] = 1;
 		endif;
-		newPID = newPID + 1;
+		newPID = newPID + 32;
 	endwhile;
 	[physicalSP - 2] = 0;
 	ireturn;
 endif;
 [physicalSP - 2] = -1;
-//print "InvalidSYSCall";
+// print "InvalidSYSCall";
+// print "Out INT 7";
 ireturn;

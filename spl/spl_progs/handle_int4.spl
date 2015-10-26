@@ -1,11 +1,11 @@
-//print "In INT 4";
+// print "In INT 4";
 alias physicalSP S0;
 physicalSP = ([PTBR + 2 * (SP / 512)] * 512) + (SP % 512);
 alias sysCallNo S1;
 sysCallNo = [physicalSP - 1];
 breakpoint;
-//print "sysCallNo=";
-//print sysCallNo;
+// print "sysCallNo=";
+// print sysCallNo;
 
 if (sysCallNo == 5) then
 	// Implementation of Write
@@ -13,13 +13,14 @@ if (sysCallNo == 5) then
 	// Get the File Descriptor
 	alias fileDescriptor S2;
 	fileDescriptor = [physicalSP - 4];
-//	print "fileDescriptor=";
-//	print fileDescriptor;
+//	//*print "fileDescriptor=";
+//	//*print fileDescriptor;
 	
 	// Check if the File Descriptor is Valid
 	if(fileDescriptor<0 || fileDescriptor>7) then
-	//	print "Invalid FD";
+	//	//*print "Invalid FD";
 		[physicalSP - 2] = -1;
+		// print "Out INT 4";
 		ireturn;
 	endif;
 	
@@ -33,8 +34,9 @@ if (sysCallNo == 5) then
 	
 	// Check if the Entry there is Valid
 	if([PPFTStart+2*fileDescriptor] == -1) then
-	//	print "Invalid SWOT";
+	//	//*print "Invalid SWOT";
 		[physicalSP - 2] = -1;
+		// print "Out INT 4";
 		ireturn;
 	endif;
 	
@@ -42,8 +44,8 @@ if (sysCallNo == 5) then
 	alias SWOTindex S5;
 	SWOTindex = [PPFTStart+2*fileDescriptor];
 	
-//	print "SWOTindex=";
-//	print SWOTindex;
+//	//*print "SWOTindex=";
+//	//*print SWOTindex;
 	
 	// Get the LSEEK 
 	alias lSeek S6;
@@ -53,14 +55,14 @@ if (sysCallNo == 5) then
 	alias fatIndex S7;
 	fatIndex = [FILE_TABLE + 2 * SWOTindex];
 	
-//	print "fatIndex=";
-//	print fatIndex;
+//	//*print "fatIndex=";
+//	//*print fatIndex;
 	
 	alias basicBlock S8;
 	basicBlock = [FAT + 8 * fatIndex + 2];
 	
-//	print "BasicBlock=";
-//	print basicBlock;
+//	//*print "BasicBlock=";
+//	//*print basicBlock;
 	
 	load(1, basicBlock);
 	
@@ -76,8 +78,8 @@ if (sysCallNo == 5) then
 		dataBlock = 24;
 		while (dataBlock < 447) do
 			if ([dataBlock + DISK_LIST] == 0) then	
-			//	print "FreeSpace";
-			//	print dataBlock;
+			//	//*print "FreeSpace";
+			//	//*print dataBlock;
 				break;
 			endif;
 			dataBlock = dataBlock + 1;
@@ -85,7 +87,8 @@ if (sysCallNo == 5) then
 	
 		if (dataBlock == 447) then	
 			[physicalSP - 2] = -1;
-		//	print "No FreeSpace";
+		//	//*print "No FreeSpace";
+			// print "Out INT 4";
 			ireturn;
 		endif;
 		
@@ -110,9 +113,11 @@ if (sysCallNo == 5) then
 	[PPFTStart+2*fileDescriptor+1] = lSeek + 1;
 	
 	[physicalSP - 2] = 0;
+	// print "Out INT 4";
 	ireturn;
 	
 endif;
 [physicalSP - 2] = -1;
-print "InvalidSYSCall";
+//*print "InvalidSYSCall";
+// print "Out INT 4";
 ireturn;

@@ -15,10 +15,13 @@ integer main()
 			continue;
 		endif;
 		pid = Fork();
+		breakpoint;
+		// print(pid);
 		if(pid!=-2) then 
 			pid = Wait(pid);
 		endif;
 		if(pid==-2) then
+			// print("insideChild");
 			pid = Exec(command);
 			if(pid==-1) then
 				print("command");
