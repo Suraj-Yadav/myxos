@@ -4,8 +4,6 @@ integer main()
 	integer retval;
 	breakpoint;
 	childpid = Fork();
-	print("childpid");
-	print(childpid);
 	if (childpid == -1) then
 		print("ForkFail");
 	endif;

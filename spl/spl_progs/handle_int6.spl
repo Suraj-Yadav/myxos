@@ -77,9 +77,8 @@ if (sysCallNo == 9) then	//Exec System Call
 		endif;
 		// print "dataBlk";
 		// print [SCRATCHPAD + reqPages];
-		[currentPTBR + reqPages] = [SCRATCHPAD + reqPages];
-		reqPages = reqPages + 1;
-		[currentPTBR + reqPages] = "00";
+		[currentPTBR + 2*reqPages] = [SCRATCHPAD + reqPages];
+		[currentPTBR + 2*reqPages + 1] = "00";
 		reqPages = reqPages + 1;
 		if(reqPages>4) then 
 			[physicalSP] = -1;
@@ -88,6 +87,16 @@ if (sysCallNo == 9) then	//Exec System Call
 			ireturn;
 		endif;
 	endwhile;	
+	
+	
+	// print [currentPTBR + 0];
+	// print [currentPTBR + 1];
+	// print [currentPTBR + 2];
+	// print [currentPTBR + 3];
+	// print [currentPTBR + 4];
+	// print [currentPTBR + 5];
+	// print [currentPTBR + 6];
+	// print [currentPTBR + 7];
 	
 	// Get the Start of Per Process Table
 	alias PPFTStart S10;

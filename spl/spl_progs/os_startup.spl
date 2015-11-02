@@ -73,6 +73,9 @@ endwhile;
 
 breakpoint;
 
+// Commit the Disk Free List back to Disk
+store(6,20);
+
 // Load The INIT Process into memory
 //	load(25,21);			// 
 //	load(26,22); 			// Load pages of code from disk to memory
